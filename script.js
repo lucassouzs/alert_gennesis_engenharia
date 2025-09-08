@@ -3,7 +3,7 @@ const ALERT_TIMES = [
     { hour: 6, minute: 50, message: "Hora de bater o ponto de entrada. Bom trabalho!" },
     { hour: 11, minute: 50, message: "Hora de bater o ponto e aproveitar sua pausa para o almoço. Bom apetite!" },
     { hour: 12, minute: 50, message: "Não esqueça de bater o ponto de volta ao trabalho. Boa tarde!" },
-    { hour: 16, minute: 21, message: "Hora de bater o ponto de saída. Bom descanso!" }
+    { hour: 16, minute: 22, message: "Hora de bater o ponto de saída. Bom descanso!" }
 ];
 
 // Elementos DOM
