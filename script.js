@@ -2,8 +2,8 @@
 const ALERT_TIMES = [
     { hour: 6, minute: 50, message: "Hora de bater o ponto de entrada. Bom trabalho!" },
     { hour: 11, minute: 50, message: "Hora de bater o ponto e aproveitar sua pausa para o almoço. Bom apetite!" },
-    { hour: 16, minute: 39, message: "Não esqueça de bater o ponto de volta ao trabalho. Boa tarde!" },
-    { hour: 16, minute: 49, message: "Hora de bater o ponto de saída. Bom descanso!" }
+    { hour: 12, minute: 50, message: "Não esqueça de bater o ponto de volta ao trabalho. Boa tarde!" },
+    { hour: 16, minute: 50, message: "Hora de bater o ponto de saída. Bom descanso!" }
 ];
 
 // Elementos DOM
@@ -20,6 +20,32 @@ const body = document.body;
 // Variáveis de controle
 let alarmTimeout;
 let countdownInterval;
+let audioInitialized = false;
+
+// Inicializa o áudio para permitir reprodução automática
+function initAudio() {
+    if (audioInitialized) return;
+    
+    // Toca e pausa imediatamente para "destravar" o áudio
+    alarmSound.volume = 0.01; // Volume quase mudo
+    const playPromise = alarmSound.play();
+    
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            // Pausa imediatamente após iniciar
+            setTimeout(() => {
+                alarmSound.pause();
+                alarmSound.currentTime = 0;
+                alarmSound.volume = 1.0; // Restaura volume normal
+                audioInitialized = true;
+            }, 100);
+        }).catch(error => {
+            console.log("Inicialização de áudio falhou:", error);
+            alarmSound.volume = 1.0;
+            audioInitialized = true;
+        });
+    }
+}
 
 // Atualiza o relógio
 function updateClock() {
@@ -104,6 +130,7 @@ function playAlarm() {
 function stopAlarm() {
     alarmSound.pause();
     alarmSound.currentTime = 0;
+    alarmSound.loop = false;
     
     // Limpa o timeout do alarme se existir
     if (alarmTimeout) {
@@ -157,6 +184,7 @@ function hideAlert() {
 
 // Inicialização
 function init() {
+    initAudio(); // Inicializa o áudio para reprodução automática
     updateClock();
     setInterval(updateClock, 1000);
     
