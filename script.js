@@ -1,4 +1,4 @@
-// Horários de alerta (7h, 12h, 13h e 17h)
+// Horários de alerta
 const ALERT_TIMES = [
     { hour: 6, minute: 50, message: "Hora de bater o ponto de entrada. Bom trabalho!" },
     { hour: 11, minute: 50, message: "Hora de bater o ponto e aproveitar sua pausa para o almoço. Bom apetite!" },
@@ -15,11 +15,64 @@ const specificMessage = document.getElementById('specific-message');
 const timerElement = document.getElementById('timer');
 const alarmSound = document.getElementById('alarm-sound');
 const stopAlarmButton = document.getElementById('stop-alarm');
+const autoClickButton = document.getElementById('auto-click-button');
 const body = document.body;
 
 // Variáveis de controle
 let alarmTimeout;
 let countdownInterval;
+let audioInteracted = false;
+
+// Função para liberar o áudio automaticamente
+function enableAudio() {
+    if (!audioInteracted) {
+        // Simula um clique no botão invisível
+        autoClickButton.click();
+        audioInteracted = true;
+        console.log("Áudio liberado automaticamente");
+        
+        // Recarrega o áudio para garantir que está pronto
+        alarmSound.load();
+    }
+}
+
+// Toca o alarme por 10 segundos
+function playAlarm() {
+    // Libera o áudio primeiro (ADICIONE ESTA LINHA)
+    enableAudio();
+    
+    // Pequeno delay para garantir que o áudio foi liberado
+    setTimeout(() => {
+        alarmSound.loop = true;
+        
+        const playPromise = alarmSound.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.log("Erro ao reproduzir áudio:", error);
+                // Tenta novamente após breve pausa
+                setTimeout(() => {
+                    alarmSound.play().catch(e => console.log("Segunda tentativa falhou:", e));
+                }, 300);
+            });
+        }
+        
+        // Para o alarme automaticamente após 10 segundos
+        alarmTimeout = setTimeout(() => {
+            stopAlarm();
+        }, 10000);
+    }, 100);
+}
+
+// Para o alarme
+function stopAlarm() {
+    alarmSound.pause();
+    alarmSound.currentTime = 0;
+    
+    if (alarmTimeout) {
+        clearTimeout(alarmTimeout);
+    }
+}
 
 // Atualiza o relógio
 function updateClock() {
@@ -44,7 +97,6 @@ function checkForAlerts(now) {
     const currentMinute = now.getMinutes();
     const currentSecond = now.getSeconds();
     
-    // Verifica cada horário de alerta
     for (const alertTime of ALERT_TIMES) {
         if (currentHour === alertTime.hour && 
             currentMinute === alertTime.minute && 
@@ -56,38 +108,6 @@ function checkForAlerts(now) {
     }
 }
 
-// Toca o alarme por 10 segundos
-function playAlarm() {
-    // Configura o áudio para tocar em loop
-    alarmSound.loop = true;
-    
-    // Tenta tocar o áudio
-    const playPromise = alarmSound.play();
-    
-    // Se houver problema com autoplay, exibe mensagem
-    if (playPromise !== undefined) {
-        playPromise.catch(error => {
-            console.log("Reprodução automática impedida. O usuário precisa interagir primeiro.");
-        });
-    }
-    
-    // Para o alarme automaticamente após 10 segundos
-    alarmTimeout = setTimeout(() => {
-        stopAlarm();
-    }, 10000); // 4 segundos
-}
-
-// Para o alarme
-function stopAlarm() {
-    alarmSound.pause();
-    alarmSound.currentTime = 0;
-    
-    // Limpa o timeout do alarme se existir
-    if (alarmTimeout) {
-        clearTimeout(alarmTimeout);
-    }
-}
-
 // Exibe o alerta
 function showAlert(message) {
     specificMessage.textContent = message;
@@ -95,13 +115,10 @@ function showAlert(message) {
     normalMessage.style.opacity = '0';
     normalMessage.style.pointerEvents = 'none';
     
-    // Altera o fundo para vermelho
     body.style.background = 'linear-gradient(135deg, #8A0303, #B20600, #FF0000)';
     
-    // Toca o alarme por 10 segundos
     playAlarm();
     
-    // Inicia contagem regressiva de 20 minutos (1200 segundos)
     let secondsLeft = 1200;
     
     countdownInterval = setInterval(() => {
@@ -125,25 +142,18 @@ function hideAlert() {
     normalMessage.style.opacity = '1';
     normalMessage.style.pointerEvents = 'auto';
     
-    // Para o alarme
     stopAlarm();
-    
-    // Restaura o gradiente original
     body.style.background = 'linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d)';
 }
 
 // Inicialização
 function init() {
+    // Libera o áudio automaticamente ao carregar (ADICIONE ESTA LINHA)
+    setTimeout(enableAudio, 1000);
+    
     updateClock();
     setInterval(updateClock, 1000);
     
-    // Verifica se há uma logo personalizada no localStorage
-    const customLogo = localStorage.getItem('companyLogo');
-    if (customLogo) {
-        document.getElementById('company-logo').src = customLogo;
-    }
-    
-    // Configura o botão de parar alarme
     stopAlarmButton.addEventListener('click', stopAlarm);
 }
 
@@ -156,7 +166,6 @@ document.addEventListener('keydown', (e) => {
         showAlert("Mensagem de teste do alerta de ponto!");
     }
     
-    // Para o alarme com a tecla 'S'
     if (e.key === 's' || e.key === 'S') {
         stopAlarm();
     }
