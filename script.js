@@ -1,9 +1,9 @@
 // Horários de alerta (7h, 12h, 13h e 17h)
 const ALERT_TIMES = [
-    { hour: 6, minute: 10, message: "Hora de bater o ponto de entrada. Bom trabalho!" },
+    { hour: 6, minute: 50, message: "Hora de bater o ponto de entrada. Bom trabalho!" },
     { hour: 11, minute: 50, message: "Hora de bater o ponto e aproveitar sua pausa para o almoço. Bom apetite!" },
-    { hour: 16, minute: 15, message: "Não esqueça de bater o ponto de volta ao trabalho. Boa tarde!" },
-    { hour: 16, minute: 50, message: "Hora de bater o ponto de saída. Bom descanso!" }
+    { hour: 12, minute: 50, message: "Não esqueça de bater o ponto de volta ao trabalho. Boa tarde!" },
+    { hour: 16, minute: 21, message: "Hora de bater o ponto de saída. Bom descanso!" }
 ];
 
 // Elementos DOM
@@ -74,7 +74,7 @@ function playAlarm() {
     // Para o alarme automaticamente após 10 segundos
     alarmTimeout = setTimeout(() => {
         stopAlarm();
-    }, 10000); // 10 segundos
+    }, 4000); // 4 segundos
 }
 
 // Para o alarme
@@ -101,7 +101,7 @@ function showAlert(message) {
     // Toca o alarme por 10 segundos
     playAlarm();
     
-    // Inicia contagem regressiva de 5 minutos (300 segundos)
+    // Inicia contagem regressiva de 20 minutos (1200 segundos)
     let secondsLeft = 1200;
     
     countdownInterval = setInterval(() => {
