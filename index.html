@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lembrete de Ponto - Empresa</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Elemento de áudio para o alarme -->
+    <audio id="alarm-sound" preload="auto">
+        <source src="alarm-sound.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+    
+    <div class="container">
+        <header>
+            <div class="logo">
+                <!-- Substitua pelo caminho da logo da sua empresa -->
+                <img src="logo.png" alt="Logo da Empresa" id="company-logo">
+            </div>
+            <div class="current-time">
+                <span id="time">00:00:00</span>
+                <span id="date">Segunda-feira, 01 de Janeiro de 2023</span>
+            </div>
+        </header>
+
+        <main>
+            <div class="message-container">
+                <div class="normal-message" id="normal-message">
+                    <h1>Lembrete de Ponto</h1>
+                    <p>Não se esqueça de bater seu ponto nos horários corretos!</p>
+                    
+                    <div class="next-schedule">
+                        <h2>Próximos horários de ponto:</h2>
+                        <div class="schedule-cards">
+                            <div class="schedule-card">
+                                <h3>Entrada</h3>
+                                <div class="time-slot">
+                                    <span class="time-from">06:50</span>
+                                    <span class="time-to">07:10</span>
+                                </div>
+                            </div>
+                            <div class="schedule-card">
+                                <h3>Almoço</h3>
+                                <div class="time-slot">
+                                    <span class="time-from">11:50</span>
+                                    <span class="time-to">12:10</span>
+                                </div>
+                            </div>
+                            <div class="schedule-card">
+                                <h3>Retorno</h3>
+                                <div class="time-slot">
+                                    <span class="time-from">12:50</span>
+                                    <span class="time-to">13:10</span>
+                                </div>
+                            </div>
+                            <div class="schedule-card">
+                                <h3>Saída</h3>
+                                <div class="time-slot">
+                                    <span class="time-from">16:50</span>
+                                    <span class="time-to">17:10</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert-message" id="alert-message">
+                    <div class="pulse-ring"></div>
+                    <h1>HORA DE BATER O PONTO!</h1>
+                    <p id="specific-message">Lembrete de ponto</p>
+                    <div class="countdown" id="countdown">
+                        <span>Este alerta ficará visível por: </span>
+                        <span id="timer">5:00</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Não se esqueça: seu ponto é importante para o controle de jornada!</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
