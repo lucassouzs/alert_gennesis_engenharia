@@ -1,9 +1,9 @@
 // Horários de alerta (7h, 12h, 13h e 17h)
 const ALERT_TIMES = [
-    { hour: 6, minute: 50, message: "Hora de bater o ponto de entrada. Bom trabalho!" },
-    { hour: 11, minute: 50, message: "Hora de bater o ponto e aproveitar sua pausa para o almoço. Bom apetite!" },
-    { hour: 12, minute: 50, message: "Não esqueça de bater o ponto de volta ao trabalho. Boa tarde!" },
-    { hour: 16, minute: 50, message: "Hora de bater o ponto de saída. Bom descanso!" }
+    { hour: 7, minute: 0, message: "Hora de bater o ponto de entrada. Bom trabalho!" },
+    { hour: 12, minute: 0, message: "Hora de bater o ponto e aproveitar sua pausa para o almoço. Bom apetite!" },
+    { hour: 13, minute: 0, message: "Não esqueça de bater o ponto de volta ao trabalho. Boa tarde!" },
+    { hour: 17, minute: 0, message: "Hora de bater o ponto de saída. Bom descanso!" }
 ];
 
 // Elementos DOM
@@ -20,30 +20,34 @@ const body = document.body;
 // Variáveis de controle
 let alarmTimeout;
 let countdownInterval;
-let audioInitialized = false;
+let audioContextInitialized = false;
 
 // Inicializa o áudio para permitir reprodução automática
 function initAudio() {
-    if (audioInitialized) return;
+    if (audioContextInitialized) return;
     
-    // Toca e pausa imediatamente para "destravar" o áudio
-    alarmSound.volume = 0.01; // Volume quase mudo
-    const playPromise = alarmSound.play();
-    
-    if (playPromise !== undefined) {
-        playPromise.then(() => {
-            // Pausa imediatamente após iniciar
-            setTimeout(() => {
-                alarmSound.pause();
-                alarmSound.currentTime = 0;
-                alarmSound.volume = 1.0; // Restaura volume normal
-                audioInitialized = true;
-            }, 100);
-        }).catch(error => {
-            console.log("Inicialização de áudio falhou:", error);
-            alarmSound.volume = 1.0;
-            audioInitialized = true;
-        });
+    // Tenta inicializar o contexto de áudio
+    try {
+        // Cria um contexto de áudio e toca um som silencioso
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioContext = new AudioContext();
+        
+        // Cria um oscilador com volume zero
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        gainNode.gain.value = 0.001; // Volume quase zero
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Inicia e para imediatamente
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.1);
+        
+        audioContextInitialized = true;
+        console.log("Áudio inicializado com sucesso");
+    } catch (error) {
+        console.error("Erro ao inicializar áudio:", error);
     }
 }
 
@@ -82,39 +86,23 @@ function checkForAlerts(now) {
     }
 }
 
-// Toca o alarme por 10 segundos
+// Toca o alarme
 function playAlarm() {
     // Para e reinicia o áudio
     alarmSound.pause();
     alarmSound.currentTime = 0;
     
-    // Configura o áudio para tocar em loop
-    alarmSound.loop = true;
-    
-    // Tenta tocar o áudio com uma promessa
+    // Tenta tocar o áudio
     const playPromise = alarmSound.play();
     
-    // Se a reprodução for bloqueada, tenta novamente após pequeno delay
     if (playPromise !== undefined) {
         playPromise.catch(error => {
-            console.log("Tentativa de reprodução automática impedida. Tentando novamente...");
+            console.log("Reprodução automática impedida. Tentando novamente...");
             
             // Tenta novamente após um pequeno delay
             setTimeout(() => {
                 alarmSound.play().catch(e => {
-                    console.log("Segunda tentativa falhou:", e);
-                    
-                    // Força a reprodução silenciando e dessilenciando
-                    alarmSound.muted = true;
-                    const forcedPlay = alarmSound.play();
-                    
-                    if (forcedPlay !== undefined) {
-                        forcedPlay.then(() => {
-                            alarmSound.muted = false;
-                        }).catch(e => {
-                            console.log("Não foi possível reproduzir o áudio automaticamente");
-                        });
-                    }
+                    console.log("Não foi possível reproduzir o áudio automaticamente");
                 });
             }, 300);
         });
@@ -130,7 +118,6 @@ function playAlarm() {
 function stopAlarm() {
     alarmSound.pause();
     alarmSound.currentTime = 0;
-    alarmSound.loop = false;
     
     // Limpa o timeout do alarme se existir
     if (alarmTimeout) {
@@ -187,12 +174,6 @@ function init() {
     initAudio(); // Inicializa o áudio para reprodução automática
     updateClock();
     setInterval(updateClock, 1000);
-    
-    // Verifica se há uma logo personalizada no localStorage
-    const customLogo = localStorage.getItem('companyLogo');
-    if (customLogo) {
-        document.getElementById('company-logo').src = customLogo;
-    }
     
     // Configura o botão de parar alarme
     stopAlarmButton.addEventListener('click', stopAlarm);
