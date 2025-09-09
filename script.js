@@ -1,6 +1,6 @@
 // Horários de alerta (7h, 12h, 13h e 17h)
 const ALERT_TIMES = [
-    { hour: 6, minute: 50, message: "Hora de bater o ponto de entrada. Bom trabalho!" },
+    { hour: 7, minute: 0, message: "Hora de bater o ponto de entrada. Bom trabalho!" },
     { hour: 11, minute: 50, message: "Hora de bater o ponto e aproveitar sua pausa para o almoço. Bom apetite!" },
     { hour: 12, minute: 50, message: "Não esqueça de bater o ponto de volta ao trabalho. Boa tarde!" },
     { hour: 16, minute: 50, message: "Hora de bater o ponto de saída. Bom descanso!" }
