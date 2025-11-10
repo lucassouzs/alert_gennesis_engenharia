@@ -1,10 +1,23 @@
-// Horários de alerta (7h, 12h, 13h e 17h)
-const ALERT_TIMES = [
-    { hour: 7, minute: 0, message: "Hora de bater o ponto de entrada. Bom trabalho!" },
-    { hour: 12, minute: 0, message: "Hora de bater o ponto e aproveitar sua pausa para o almoço. Bom apetite!" },
-    { hour: 13, minute: 0, message: "Não esqueça de bater o ponto de volta ao trabalho. Boa tarde!" },
-    { hour: 17, minute: 0, message: "Hora de bater o ponto de saída. Bom descanso!" }
-];
+// Horários de alerta (7h, 12h, 13h e 17h - ou 16h na sexta-feira)
+function getAlertTimes() {
+    const now = new Date();
+    const dayOfWeek = now.getDay(); // 0 = domingo, 5 = sexta-feira
+    
+    const alertTimes = [
+        { hour: 7, minute: 0, message: "Hora de bater o ponto de entrada. Bom trabalho!" },
+        { hour: 12, minute: 0, message: "Hora de bater o ponto e aproveitar sua pausa para o almoço. Bom apetite!" },
+        { hour: 13, minute: 0, message: "Não esqueça de bater o ponto de volta ao trabalho. Boa tarde!" }
+    ];
+    
+    // Na sexta-feira, saída é às 16h, nos outros dias às 17h
+    if (dayOfWeek === 5) { // Sexta-feira
+        alertTimes.push({ hour: 16, minute: 0, message: "Hora de bater o ponto de saída. Bom descanso!" });
+    } else {
+        alertTimes.push({ hour: 17, minute: 0, message: "Hora de bater o ponto de saída. Bom descanso!" });
+    }
+    
+    return alertTimes;
+}
 
 // Elementos DOM
 const timeElement = document.getElementById('time');
@@ -59,6 +72,25 @@ function enableAudioOnInteraction() {
     document.removeEventListener('keydown', enableAudioOnInteraction);
 }
 
+// Atualiza os horários de saída no HTML baseado no dia da semana
+function updateScheduleTimes() {
+    const now = new Date();
+    const dayOfWeek = now.getDay(); // 0 = domingo, 5 = sexta-feira
+    
+    const timeFromElement = document.querySelector('.schedule-card:last-child .time-from');
+    const timeToElement = document.querySelector('.schedule-card:last-child .time-to');
+    
+    if (timeFromElement && timeToElement) {
+        if (dayOfWeek === 5) { // Sexta-feira
+            timeFromElement.textContent = '15:50';
+            timeToElement.textContent = '16:10';
+        } else {
+            timeFromElement.textContent = '16:50';
+            timeToElement.textContent = '17:10';
+        }
+    }
+}
+
 // Atualiza o relógio
 function updateClock() {
     const now = new Date();
@@ -73,6 +105,7 @@ function updateClock() {
     timeElement.textContent = time;
     dateElement.textContent = date.charAt(0).toUpperCase() + date.slice(1);
     
+    updateScheduleTimes();
     checkForAlerts(now);
 }
 
@@ -82,7 +115,9 @@ function checkForAlerts(now) {
     const currentMinute = now.getMinutes();
     const currentSecond = now.getSeconds();
     
-    for (const alertTime of ALERT_TIMES) {
+    const alertTimes = getAlertTimes();
+    
+    for (const alertTime of alertTimes) {
         if (currentHour === alertTime.hour && 
             currentMinute === alertTime.minute && 
             currentSecond === 0) {
@@ -169,6 +204,7 @@ function hideAlert() {
 
 // Inicialização
 function init() {
+    updateScheduleTimes(); // Atualiza os horários na inicialização
     updateClock();
     setInterval(updateClock, 1000);
 
@@ -181,7 +217,9 @@ function init() {
         document.getElementById('company-logo').src = customLogo;
     }
     
-    stopAlarmButton.addEventListener('click', stopAlarm);
+    if (stopAlarmButton) {
+        stopAlarmButton.addEventListener('click', stopAlarm);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', init);
